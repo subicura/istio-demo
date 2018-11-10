@@ -61,12 +61,12 @@ servicegraph-778f94d6f8-gfzdm             1/1       Running     0          6m
 
 **demo 실행**
 
+- [bookinfo.yaml](bookinfo.yaml)
+- [injected-bookinfo.yaml](injected-bookinfo.yaml)
+
 ```bash
 $ istioctl kube-inject -f bookinfo.yaml | kubectl apply -f -
 ```
-
-- [bookinfo.yaml](bookinfo.yaml)
-- [injected-bookinfo.yaml](injected-bookinfo.yaml)
 
 **demo 확인**
 
@@ -84,13 +84,11 @@ reviews-v2-79c66bbdd-xwgff        2/2       Running   0          1m
 reviews-v3-559fc7cb59-bqsk9       2/2       Running   0          1m
 ```
 
-**gateway 설정**
+**gateway 설정** ([bookinfo-gateway.yaml](bookinfo-gateway.yaml))
 
 ```bash
 $ kubectl apply -f bookinfo-gateway.yaml
 ```
-
-- [bookinfo-gateway.yaml](bookinfo-gateway.yaml)
 
 **웹페이지 확인**
 
@@ -100,68 +98,58 @@ http://localhost/productpage
 
 ## 설정 데모
 
-**destination rule 설정**
+**destination rule 설정** ([destination-rule-all-mtls.yaml](destination-rule-all-mtls.yaml))
 
 ```bash
 $ kubectl apply -f destination-rule-all-mtls.yaml
 ```
 
-- [destination-rule-all-mtls.yaml](destination-rule-all-mtls.yaml)
-
-**9:1 가중치**
+**9:1 가중치** ([virtual-service-reviews-90-10.yaml](virtual-service-reviews-90-10.yaml))
 
 ```bash
 $ kubectl apply -f virtual-service-reviews-90-10.yaml
 ```
 
-- [virtual-service-reviews-90-10.yaml](virtual-service-reviews-90-10.yaml)
-
-**tom user 분기처리**
+**tom user 분기처리** ([virtual-service-reviews-tom-v2-v3.yaml](virtual-service-reviews-tom-v2-v3.yaml))
 
 ```bash
 $ kubectl apply -f virtual-service-reviews-tom-v2-v3.yaml
 ```
 
-- [virtual-service-reviews-tom-v2-v3.yaml](virtual-service-reviews-tom-v2-v3.yaml)
-
-**fault injection**
+**fault injection** ([virtual-service-ratings-test-delay.yaml](virtual-service-ratings-test-delay.yaml))
 
 ```bash
 $ kubectl apply -f virtual-service-ratings-test-delay.yaml
 ```
 
-- [virtual-service-ratings-test-delay.yaml](virtual-service-ratings-test-delay.yaml)
-
-**retry**
+**retry** ([virtual-service-reviews-test-timeout.yaml](virtual-service-reviews-test-timeout.yaml))
 
 ```bash
 $ kubectl delete virtualservice reviews
 $ kubectl apply -f virtual-service-reviews-test-timeout.yaml
 ```
 
-- [virtual-service-reviews-test-timeout.yaml](virtual-service-reviews-test-timeout.yaml)
-
 ## Add on
 
-- prometheus (http://localhost:9090)
+**prometheus** (http://localhost:9090)
 
 ```bash
 $ kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=prometheus -o jsonpath='{.items[0].metadata.name}') 9090:9090
 ```
 
-- grafana (http://localhost:3000)
+**grafana** (http://localhost:3000)
 
 ```bash
 $ kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=grafana -o jsonpath='{.items[0].metadata.name}') 3000:3000
 ```
 
-- jagger (http://localhost:16686)
+**jagger** (http://localhost:16686)
 
 ```bash
 $ kubectl port-forward -n istio-system $(kubectl get pod -n istio-system -l app=jaeger -o jsonpath='{.items[0].metadata.name}') 16686:16686
 ```
 
-- service graph (http://localhost:8088/dotviz)
+**service graph** (http://localhost:8088/dotviz)
 
 ```bash
 $ kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=servicegraph -o jsonpath='{.items[0].metadata.name}') 8088:8088
