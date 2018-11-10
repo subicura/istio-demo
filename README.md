@@ -29,8 +29,7 @@ $ export PATH=$PWD/bin:$PATH
 kubernetes cluster에 istio 배포
 
 ```bash
-$ kubectl apply -f crds.yaml
-$ kubectl apply -f istio-demo-auth.yaml
+$ kubectl apply -f crds.yaml -f istio-demo-auth.yaml
 ```
 
 **istio 설치 확인**
@@ -66,6 +65,9 @@ servicegraph-778f94d6f8-gfzdm             1/1       Running     0          6m
 $ istioctl kube-inject -f bookinfo.yaml | kubectl apply -f -
 ```
 
+- [bookinfo.yaml](bookinfo.yaml)
+- [injected-bookinfo.yaml](injected-bookinfo.yaml)
+
 **demo 확인**
 
 ```bash
@@ -88,6 +90,8 @@ reviews-v3-559fc7cb59-bqsk9       2/2       Running   0          1m
 $ kubectl apply -f bookinfo-gateway.yaml
 ```
 
+- [bookinfo-gateway.yaml](bookinfo-gateway.yaml)
+
 **웹페이지 확인**
 
 http://localhost/productpage
@@ -102,11 +106,15 @@ http://localhost/productpage
 $ kubectl apply -f destination-rule-all-mtls.yaml
 ```
 
+- [destination-rule-all-mtls.yaml](destination-rule-all-mtls.yaml)
+
 **9:1 가중치**
 
 ```bash
 $ kubectl apply -f virtual-service-reviews-90-10.yaml
 ```
+
+- [virtual-service-reviews-90-10.yaml](virtual-service-reviews-90-10.yaml)
 
 **tom user 분기처리**
 
@@ -114,39 +122,46 @@ $ kubectl apply -f virtual-service-reviews-90-10.yaml
 $ kubectl apply -f virtual-service-reviews-tom-v2-v3.yaml
 ```
 
+- [virtual-service-reviews-tom-v2-v3.yaml](virtual-service-reviews-tom-v2-v3.yaml)
+
 **fault injection**
 
 ```bash
 $ kubectl apply -f virtual-service-ratings-test-delay.yaml
 ```
 
+- [virtual-service-ratings-test-delay.yaml](virtual-service-ratings-test-delay.yaml)
+
 **retry**
 
 ```bash
+$ kubectl delete virtualservice reviews
 $ kubectl apply -f virtual-service-reviews-test-timeout.yaml
 ```
 
+- [virtual-service-reviews-test-timeout.yaml](virtual-service-reviews-test-timeout.yaml)
+
 ## Add on
 
-- prometheus
+- prometheus (http://localhost:9090)
 
 ```bash
 $ kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=prometheus -o jsonpath='{.items[0].metadata.name}') 9090:9090
 ```
 
-- grafana
+- grafana (http://localhost:3000)
 
 ```bash
 $ kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=grafana -o jsonpath='{.items[0].metadata.name}') 3000:3000
 ```
 
-- jagger
+- jagger (http://localhost:16686)
 
 ```bash
 $ kubectl port-forward -n istio-system $(kubectl get pod -n istio-system -l app=jaeger -o jsonpath='{.items[0].metadata.name}') 16686:16686
 ```
 
-- service graph
+- service graph (http://localhost:8088/dotviz)
 
 ```bash
 $ kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=servicegraph -o jsonpath='{.items[0].metadata.name}') 8088:8088
@@ -157,3 +172,11 @@ $ kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=
 - /dotgraph DOT 형태로 시각화
 - /d3graph D3 라이브러리를 위한 JSON 결과
 - /graph JSON 형태의 결과
+
+## cleanup
+
+```
+$ istioctl kube-inject -f bookinfo.yaml | kubectl delete -f -
+$ kubectl delete -f istio-demo-auth.yaml
+$ kubectl delete -f crds.yaml
+```
